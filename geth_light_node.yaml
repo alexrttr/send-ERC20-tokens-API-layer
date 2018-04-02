@@ -1,0 +1,12 @@
+version: '3.3'
+services:
+    ethereum:
+        hostname: ethereum
+        image: ethereum/client-go:alpine
+        ports:
+            - "30303:30303"
+            - "8545:8545"
+        volumes:
+            - ./ethereum:/root/.ethereum
+        command: --light --rpc --rpcaddr "0.0.0.0"
+        network_mode: "host"

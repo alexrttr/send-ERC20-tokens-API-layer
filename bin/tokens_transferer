@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+import btc_transfer
+
+if __name__ == '__main__':
+    btc_transfer.main()

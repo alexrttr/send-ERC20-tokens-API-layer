@@ -1,0 +1,5 @@
+celery
+pymongo
+twisted
+txJSON-RPC
+web3[gevent]
