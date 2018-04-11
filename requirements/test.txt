@@ -1,4 +1,4 @@
 -r base.txt
-tox>=2.7.0
+tox
 pytest
 jsonrpcclient[requests]

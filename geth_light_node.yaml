@@ -8,5 +8,4 @@ services:
             - "8545:8545"
         volumes:
             - ./ethereum:/root/.ethereum
-        command: --light --rpc --rpcaddr "0.0.0.0"
-        network_mode: "host"
+        command: --light --rpc --unlock 0 --password /root/.ethereum/keystore/password  # --verbosity 1

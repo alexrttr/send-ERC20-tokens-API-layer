@@ -105,3 +105,8 @@ venv.bak/
 
 cscope*
 tags
+*.swp
+out.html
+core
+redis/*
+ethereum/*

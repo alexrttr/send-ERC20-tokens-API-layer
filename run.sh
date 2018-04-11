@@ -1,4 +1,4 @@
 #!/bin/bash
 
-
-docker-compose up --scale worker=4
+docker-compose -f geth_light_node.yaml up&  # -d
+docker-compose up --scale worker=2 --no-deps &  # -d

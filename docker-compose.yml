@@ -3,46 +3,69 @@ services:
     rabbit:
         hostname: rabbit
         image: rabbitmq:latest
-        environment:
-            - RABBITMQ_DEFAULT_USER=admin
-            - RABBITMQ_DEFAULT_PASS=mypass
+#       environment:
+#           - RABBITMQ_DEFAULT_USER=admin
+#           - RABBITMQ_DEFAULT_PASS=mypass
         ports:
             - "5673:5672"
 
     database:
-        hostname: mongo
-        image: mongo:latest
+        hostname: database
+        image: redis:latest
         ports:
-            - "27018:27017"
+            - "6379:6379"
+        volumes:
+            - ./redis:/data
+        entrypoint: redis-server --appendonly yes
+        restart: always
 
-#   ethereum:
-#       hostname: ethereum
-#       image: ethereum/client-go:alpine
-#       ports:
-#           - "30303:30303"
-#           - "8545:8545"
-#       volumes:
-#           - ./ethereum:/root/.ethereum
-#       command: --rpc --rpcaddr "0.0.0.0"
+    server:
+        hostname: server
+        build:
+            context: .
+            dockerfile: server_dockerfile
+        environment:
+            - ETH_RPC_PORT=8545
+            - RPC_PORT=7080
+        ports:
+            - "7080:7080"
+        links:
+            - rabbit
+        depends_on:
+            - rabbit
 
     worker:
         build:
             context: .
-            dockerfile: dockerfile
-        deploy:
-            replicas: 4
-        environment:
-            THREADING_BACKEND=gevent
-            CONTRACT_ADDR=0x6278ae7b2954ba53925ea940165214da30afa261
-            ETH_RPC_PORT=8545
-            RPC_PORT=7080
+            dockerfile: worker_dockerfile
         volumes:
             - .:/app
+        environment:
+            - THREADING_BACKEND=gevent
+            - CONTRACT_ADDR=0x6278ae7b2954ba53925EA940165214da30AFa261
+            - ETH_RPC_PORT=8545
+            - ETH_HOST=192.168.0.45
+            - ZEEW_TX_MINING_TIME=1
+            - SAVE_RESULTS_TO_DB=1
+            - INVESTMENT_HOST=192.168.0.45
         links:
             - rabbit
             - database
-#           - ethereum
         depends_on:
             - rabbit
             - database
-#           - ethereum
+
+    flower:
+        hostname: flower
+        image: totem/celery-flower-docker
+        environment:
+            - AMQP_HOST=rabbit
+            - AMQP_USERNAME=admin
+            - AMQP_PASSWORD=mypass
+        ports:
+             - "5555:5555"
+        entrypoint: flower
+        links:
+            - rabbit
+        depends_on:
+            - rabbit

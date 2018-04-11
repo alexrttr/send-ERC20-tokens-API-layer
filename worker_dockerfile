@@ -1,0 +1,9 @@
+FROM python:3.6
+
+WORKDIR /app/
+ADD requirements/ ./requirements
+ADD contract/     ./contract
+ADD btc_transfer/ ./btc_transfer
+
+RUN pip install -r requirements/worker.txt
+ENTRYPOINT celery -A btc_transfer  worker --concurrency=4 --loglevel=info
