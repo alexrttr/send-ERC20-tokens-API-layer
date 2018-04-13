@@ -35,6 +35,8 @@ def setup_logging():
 
 
 def main():
+    setup_logging()
+
     from . import rpc_server
     server = rpc_server.SendTokensServer()
     server.run()

@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 
-from collections import namedtuple
-import logging
 import os
+import logging
+from typing import NamedTuple
 
 from .celery import app
 from .wallet import EthWallet
@@ -17,31 +17,53 @@ mining_time = os.environ.get('ZEEW_TX_MINING_TIME', DEF_ZEEW_TX_MINING_TIME)
 default_wallet = EthWallet()
 db = Redis()
 
-Sent = namedtuple('Sent', 'req tx')
-Report = namedtuple('Report', 'sent status')
+
+class Sent(NamedTuple):
+    req: str
+    tx: str
+
+    def __repr__(self) -> str:
+        return f'<Sent, req={self.req}, tx={self.tx}>'
 
 
-@app.task(name='send_tokens_task', bind=True)
+class Report(NamedTuple):
+    req: str
+    tx: str
+    status: bool
+
+    def __repr__(self) -> str:
+        return f'<Report, req={self.sent.req}, status={self.status}>'
+
+
+@app.task(name='send_tokens', bind=True)
 def send_tokens(self, address, value, request_id):
+    return Sent(request_id, '254535')
     tx_hash = default_wallet.send_zeew(address, value)
     return Sent(request_id, tx_hash)
 
 
-@app.task(name='gather_tx_results', countdown=60*mining_time)
-def get_status(send_results):
+@app.task(name='get_tx_status', countdown=60*int(mining_time))
+def get_status(serilised_send_results) -> Report:
+    send_results = Sent(*serilised_send_results)
     logging.debug('send_tokens_result is {}'.format(send_results))
-    status = default_wallet.get_status(send_results.tx)
-    report = Report(send_results, status)
-    logging.debug('report is {}'.format(report))
+    logging.debug(f'Celery time zone is {app.conf.timezone}')
+    return Report(send_results.req, send_results.tx, True)
+
+    status = default_wallet.get_tx_status(send_results.tx)
+    report = Report(send_results.req, send_results.tx, status)
+    logging.debug(f'report is {report}')
     return report
 
 
 @app.task(name='save_tx_results')
-def save_tx_status(report):
-    db.save_job_results(*(report.sent + (report.status,)))
+def save_tx_status(serilised_report):
+    report = Report(*serilised_report)
+    db.save_job_results(report.req, (report.tx, report.status))
     return report
 
 
-@app.tesk(name='send results to remote')
+@app.task(name='send_results_to_remote')
 def send_report(report):
-    pass
+    import reporter
+
+    reporter.report(*report)

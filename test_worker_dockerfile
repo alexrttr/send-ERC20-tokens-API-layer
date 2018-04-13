@@ -5,4 +5,4 @@ ADD requirements/ ./requirements/
 RUN pip install -r requirements/worker.txt
 RUN pip install watchdog
 
-ENTRYPOINT watchmedo auto-restart -d btc_transfer -p '*.py' -- celery -A btc_transfer  worker --concurrency=4 --loglevel=debug
+ENTRYPOINT watchmedo auto-restart -d btc_transfer -i '*server.py' -p '*.py' -- celery -A btc_transfer  worker --concurrency=4 --loglevel=debug

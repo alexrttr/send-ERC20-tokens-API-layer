@@ -8,7 +8,7 @@ services:
             - "8545:8545"
         volumes:
             - ./ethereum:/root/.ethereum
-        command: --rpc --rpcaddr "0.0.0.0" --unlock 0 --password /root/.ethereum/keystore/password  --verbosity 1
+        command: --light --rpc --rpcaddr "0.0.0.0" --unlock 0 --password /root/.ethereum/keystore/password  --verbosity 1
 
     rabbit:
         hostname: rabbit
@@ -26,7 +26,9 @@ services:
         hostname: server
         build:
             context: .
-            dockerfile: server_dockerfile
+            dockerfile: test_server_dockerfile
+        volumes:
+            - .:/app
         environment:
             - ETH_RPC_PORT=8545
             - RPC_PORT=7080
@@ -41,7 +43,9 @@ services:
     worker:
         build:
             context: .
-            dockerfile: worker_dockerfile
+            dockerfile: test_worker_dockerfile
+        volumes:
+            - .:/app
         environment:
             - THREADING_BACKEND=gevent
             - CONTRACT_ADDR=0x6278ae7b2954ba53925EA940165214da30AFa261

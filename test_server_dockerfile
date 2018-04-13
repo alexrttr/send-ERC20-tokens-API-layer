@@ -1,0 +1,9 @@
+FROM python:2.7
+
+WORKDIR /app/
+ADD requirements/ ./requirements
+
+RUN pip install -r requirements/server.txt
+RUN pip install watchdog
+
+ENTRYPOINT watchmedo auto-restart -d btc_transfer -p '*server.py' -- python -m btc_transfer  -vv

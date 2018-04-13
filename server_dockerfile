@@ -1,9 +1,10 @@
 FROM python:2.7
-ADD requirements/ /app/requirements
-ADD btc_transfer/ /app/btc_transfer
-ADD setup.py      /app/
-ADD bin/ /app/bin
+
 WORKDIR /app/
+ADD requirements/ ./requirements
+ADD btc_transfer/ ./btc_transfer
+ADD setup.py      ./
+ADD bin/          ./bin
 
 RUN pip install -r requirements/server.txt
 RUN pip install -e .

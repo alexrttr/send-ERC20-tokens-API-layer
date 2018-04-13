@@ -38,7 +38,7 @@ class EthWallet(six.with_metaclass(WalletMetaClass)):
         self.w3.eth.defaultAccount = self.w3.eth.accounts[0]
         self.contract = self._get_contract()
 
-    def send_zeew(self, address, value):
+    def send_zeew(self, address: str, value: int) -> str:
         if not hasattr(self, 'w3'):
             self._connect_eth_node()
 
@@ -52,14 +52,14 @@ class EthWallet(six.with_metaclass(WalletMetaClass)):
         logging.info('sent tx {}'.format(tx))
         return tx
 
-    def get_tx_status(self, tx):
+    def get_tx_status(self, tx: str) -> bool:
         receipt = self.w3.eth.getTransactionReceipt(tx)
         if receipt is None:
             return None
         if 'status' in receipt:
-            logging.info('tx {} status is {}'.format(tx, receipt['status']))
+            logging.info(f'tx {tx} status is {receipt["status"]}')
             return receipt['status'] == 1
-        else
-            logging.warn('There is no status field in receipt!')
-            tx_info = w3.eth.getTransaction(tx)
-            return receipt['gasUsed'] != tx_info['gas']
+
+        logging.warn('There is no status field in receipt!')
+        tx_info = w3.eth.getTransaction(tx)
+        return receipt['gasUsed'] != tx_info['gas']
