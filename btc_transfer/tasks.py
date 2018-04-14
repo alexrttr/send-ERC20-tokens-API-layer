@@ -1,15 +1,19 @@
 from __future__ import absolute_import
 
 import os
+import six
 import logging
 from typing import NamedTuple
 
 from .celery import app
 from .wallet import EthWallet
 from .db import Redis
+from . import reporter
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
+logging.info('import tasks')
+
 
 DEF_ZEEW_TX_MINING_TIME = 10
 mining_time = os.environ.get('ZEEW_TX_MINING_TIME', DEF_ZEEW_TX_MINING_TIME)
@@ -64,6 +68,4 @@ def save_tx_status(serilised_report):
 
 @app.task(name='send_results_to_remote')
 def send_report(report):
-    import reporter
-
     reporter.report(*report)
