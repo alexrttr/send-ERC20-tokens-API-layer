@@ -35,6 +35,7 @@ services:
         environment:
             - ETH_RPC_PORT=8545
             - RPC_PORT=7080
+            - ZEEW_TX_MINING_TIME=5
         ports:
             - "7080:7080"
         links:
@@ -52,8 +53,6 @@ services:
             - CONTRACT_ADDR=0x6278ae7b2954ba53925EA940165214da30AFa261
             - ETH_RPC_PORT=8545
             - ETH_HOST=192.168.0.45
-            - ZEEW_TX_MINING_TIME=1
-            - SAVE_RESULTS_TO_DB=1
             - INVESTMENT_HOST=192.168.0.45
             - INVESTMENT_RPC_PORT=7081
         links:

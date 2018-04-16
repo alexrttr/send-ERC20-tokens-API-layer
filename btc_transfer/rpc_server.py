@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
-# from celery import signature
-
+# from datetime import datetime, timedelta
+# from pytz import timezone
 import logging
 import os
 import re
@@ -9,10 +9,14 @@ from twisted.web import server
 from twisted.internet import reactor
 from txjsonrpc.web import jsonrpc
 
+from .celery import app
 from . import tasks
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
+
+DEF_ZEEW_TX_MINING_TIME = 10
+mining_time = os.environ.get('ZEEW_TX_MINING_TIME', DEF_ZEEW_TX_MINING_TIME)
 
 
 class SendTokensServer(jsonrpc.JSONRPC):
@@ -48,20 +52,12 @@ class SendTokensServer(jsonrpc.JSONRPC):
         if not self._value_valid(value):
             return 'Invalid value'
 
-#       send_tokens = signature('send_tokens', args=(address, value, req_id))
-#       get_status = signature('get_status', countdown=30)
-#       save_tx_status = signature('save_tx_status')
-#       send_report = signature('send_report')
-
-#       (  send_tokens()
-#        | get_status()
-#        | save_tx_status()
-#        | send_report()
-#        )()
+#       time_now = timezone(app.conf.timezone).localize(datetime.now())
+#       delta   =  timedelta(seconds=60*int(mining_time))
 
         (tasks.send_tokens.s(address, value, req_id)
-         | tasks.get_status.s()
-         | tasks.save_tx_status.s().set(countdown=30)
+         | tasks.get_status.s().set(countdown=60*int(mining_time))
+         | tasks.save_tx_status.s()
          | tasks.send_report.s()
          )()
 

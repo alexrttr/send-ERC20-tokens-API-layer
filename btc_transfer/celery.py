@@ -10,7 +10,7 @@ app.conf.update(
                 CELERY_RESULT_SERIALIZER='json',
                 CELERY_ACCEPT_CONTENT=['json'],
                 CELERY_TIMEZONE='Europe/Moscow',
-                CELERY_ENABLE_UTC=True,
+                CELERY_ENABLE_UTC=False,
                 CELERY_TRACK_STARTED=True,
                 CELERY_RESULT_PERSISTENT=True,
                 )
