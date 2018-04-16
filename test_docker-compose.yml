@@ -8,7 +8,7 @@ services:
             - "8545:8545"
         volumes:
             - ./ethereum:/root/.ethereum
-        command: --light --rpc --rpcaddr "0.0.0.0" --unlock 0x533FB5E587c651852fee15b1588cD71934af0933  --password /root/.ethereum/keystore/password  --verbosity 1
+        command: --rpc --rpcaddr "0.0.0.0" --unlock 0x533FB5E587c651852fee15b1588cD71934af0933  --password /root/.ethereum/keystore/password  --verbosity 1
 
     rabbit:
         hostname: rabbit

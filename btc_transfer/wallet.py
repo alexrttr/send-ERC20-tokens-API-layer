@@ -48,7 +48,7 @@ class EthWallet(six.with_metaclass(WalletMetaClass)):
         }
 
         logging.info('sending {} ZEEW to {}'.format(value, address))
-        tx = self.contract.transfer(address, value).transact(transaction).hex()
+        tx = self.contract.functions.transfer(address, value).transact(transaction).hex()
         logging.info('sent tx {}'.format(tx))
         return tx
 

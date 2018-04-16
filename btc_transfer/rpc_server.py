@@ -1,7 +1,5 @@
 from __future__ import absolute_import
 
-# from datetime import datetime, timedelta
-# from pytz import timezone
 import logging
 import os
 import re
@@ -28,23 +26,17 @@ class SendTokensServer(jsonrpc.JSONRPC):
         return re.match(self.eth_address, address)
 
     def _value_valid(self, value):
-        ## only if a fraction of token can't be sold via
-        ## investment platform
-        # return isinstance(value, int) and value > 0
         try:
-            float(value)
+            int(value)
         except ValueError:
             return False
-        return float(value) > 0
+        return int(value) > 0
 
     def jsonrpc_sendTokens(self, address, value, requestId):
         """
         Sends value number of ZEEW to address
         """
-        try:
-            return self.send_tokens(address, value, requestId)
-        except RuntimeError as ex:
-            return 'error: %s' % ex.message
+        return self.send_tokens(address, int(value), requestId)
 
     def send_tokens(self, address, value, req_id):
         if not self._address_valid(address):
@@ -52,14 +44,11 @@ class SendTokensServer(jsonrpc.JSONRPC):
         if not self._value_valid(value):
             return 'Invalid value'
 
-#       time_now = timezone(app.conf.timezone).localize(datetime.now())
-#       delta   =  timedelta(seconds=60*int(mining_time))
-
         (tasks.send_tokens.s(address, value, req_id)
          | tasks.get_status.s().set(countdown=60*int(mining_time))
          | tasks.save_tx_status.s()
          | tasks.send_report.s()
-         )()
+         ).delay()
 
         return 'ok'
 
