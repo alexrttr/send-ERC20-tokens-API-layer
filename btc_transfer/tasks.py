@@ -36,7 +36,8 @@ class Report(NamedTuple):
 
 @app.task(name='send_tokens', bind=True)
 def send_tokens(self, address, value, request_id):
-#   return Sent(request_id, '254535')
+    return Sent(request_id, '254535')
+
     tx_hash = default_wallet.send_zeew(address, value)
     return Sent(request_id, tx_hash)
 
@@ -46,7 +47,7 @@ def get_status(serilised_send_results) -> Report:
     send_results = Sent(*serilised_send_results)
     logging.debug('send_tokens_result is {}'.format(send_results))
     logging.debug(f'Celery time zone is {app.conf.timezone}')
-#   return Report(send_results.req, send_results.tx, True)
+    return Report(send_results.req, send_results.tx, True)
 
     status = default_wallet.get_tx_status(send_results.tx)
     report = Report(send_results.req, send_results.tx, status)

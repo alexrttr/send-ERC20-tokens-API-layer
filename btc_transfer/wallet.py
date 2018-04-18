@@ -43,7 +43,7 @@ class EthWallet(six.with_metaclass(WalletMetaClass)):
             self._connect_eth_node()
 
         transaction = {
-            'gas': 200000,
+            'gas': 000,
             # 'gasPrice': 41,
         }
 

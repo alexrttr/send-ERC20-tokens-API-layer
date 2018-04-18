@@ -38,6 +38,7 @@ services:
             - ETH_RPC_PORT=8545
             - RPC_PORT=7080
             - ZEEW_TX_MINING_TIME=1
+            - TIME_ZONE=Europe/Moscow
         ports:
             - "7080:7080"
         links:
