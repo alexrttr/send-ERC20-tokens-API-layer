@@ -41,7 +41,14 @@ class SendTokensServer(jsonrpc.JSONRPC):
         """
         Sends value number of ZEEW to address
         """
-        logging.info(f'Received a request {requestId}')
+        logging.info(f'Received send tokens request {requestId}')
+        return self.send_tokens(address, int(value), requestId)
+
+    def jsonrpc_addAddressToWhitelist(self, address, requestId):
+        """
+        Adds address to whitelist in crowdsale contract
+        """
+        logging.info(f'Received whitelist request {requestId}')
         return self.send_tokens(address, int(value), requestId)
 
     def send_tokens(self, address, value, req_id):
@@ -50,9 +57,23 @@ class SendTokensServer(jsonrpc.JSONRPC):
         if not self._value_valid(value):
             return 'Invalid value'
 
-        logging.info('Sending tasks')
+        logging.debug('Sending tasks')
 
         (tasks.send_tokens.s(address, value, req_id)
+         | tasks.get_status.s().set(countdown=60*int(mining_time))
+         | tasks.save_tx_status.s()
+         | tasks.send_report.s()
+         )()
+
+        return 'ok'
+
+    def add_whitelist(self, address, req_id):
+        if not self._address_valid(address):
+            return 'Invalid address'
+
+        logging.debug('Sending whitelist tasks')
+
+        (tasks.add_wl.s(address, req_id)
          | tasks.get_status.s().set(countdown=60*int(mining_time))
          | tasks.save_tx_status.s()
          | tasks.send_report.s()

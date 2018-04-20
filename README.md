@@ -68,3 +68,7 @@ Once the container is launched, waits for full sync with public ethereum network
 The script will open port 7080 on the loopback interface. This port receives json-rpc requests. An example of such a request can be found in tests/rpc_caller.sh script.
 
 This script expects to be able connect to localhost port 7081 to report back results of transaction.
+
+## How to change smart contracts
+
+In order to interact with smart contracts the script reads abi.json files in `contract` directory.  Addresses of smart contracts can be found in `*.yml` config files as both enviromnent variables and parameters to ethereum node.

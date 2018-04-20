@@ -7,9 +7,13 @@ logger.addHandler(logging.NullHandler())
 
 DEFAULT_GAS_LIMIT = 200000
 DEFAULT_GAS_PRICE = 41
-DEFAULT_ETH_HOST = '192.168.0.45'
+DEFAULT_ETH_HOST = 'ethereum'
 DEFAULT_ETH_RPC_PORT = 8545
-DEFAULT_CONTRACT_ADDRESS = '0x6278ae7b2954ba53925EA940165214da30AFa261'
+
+transaction = {
+    'gas': int(os.environ.get('GAS_LIMIT', DEFAULT_GAS_LIMIT)),
+    'gasPrice': int(os.environ.get('GAS_PRICE', DEFAULT_GAS_PRICE)),
+}
 
 
 class EthWallet(object):
@@ -23,6 +27,8 @@ class EthWallet(object):
             provider = HTTPProvider('http://%s:%s' % (host, port))
             self._WEB3 = Web3(provider)
             logging.info('geth node is connected!')
+            self._WEB3.eth.defaultAccount = self.w3.eth.accounts[0]
+            logger.info(f'Using account {self.w3.eth.defaultAccount}')
         return self._WEB3
 
     @property
@@ -32,21 +38,30 @@ class EthWallet(object):
         with open('contract/holder/abi.json', 'r') as abi_definition:
             abi = json.load(abi_definition)
 
-        contract_addr = os.environ.get('CONTRACT_ADDR', DEFAULT_CONTRACT_ADDRESS)
+        contract_addr = os.environ.get('HOLDER_CONTRACT_ADDR', None)
         self._HOLDER = self.w3.eth.contract(address=contract_addr, abi=abi)
         return self._HOLDER
 
+    @property
+    def crowdsale_contract(self):
+        if getattr(self, '_CWS', None) is not None:
+            return self._CWS
+        with open('contract/crowdsale/abi.json', 'r') as abi_definition:
+            abi = json.load(abi_definition)
+
+        contract_addr = os.environ.get('CROWDSALE_CONTRACT_ADDR', None)
+        self._CWS = self.w3.eth.contract(address=contract_addr, abi=abi)
+        return self._CWS
+
     def send_zeew(self, address: str, value: int) -> str:
-        self.w3.eth.defaultAccount = self.w3.eth.accounts[0]
-        logger.info(f'Using account {self.w3.eth.defaultAccount}')
+        logging.info(f'sending {value} ZEEW to {address}')
+        tx = self.token_holder_contract.functions.transfer(address, value).transact(transaction).hex()
+        logging.info('sent tx {}'.format(tx))
+        return tx
 
-        transaction = {
-            'gas': int(os.environ.get('GAS_LIMIT', DEFAULT_GAS_LIMIT)),
-            'gasPrice': int(os.environ.get('GAS_PRICE', DEFAULT_GAS_PRICE)),
-        }
-
-        logging.info('sending {} ZEEW to {}'.format(value, address))
-        tx = self.contract.functions.transfer(address, value).transact(transaction).hex()
+    def add_to_wl(self, address: str) -> str:
+        logging.info(f'adding {address} to whitelist')
+        tx = self.crowdsale_contract.functions.addAddressToWhitelist(address).transact(transaction).hex()
         logging.info('sent tx {}'.format(tx))
         return tx
 

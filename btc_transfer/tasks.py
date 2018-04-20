@@ -31,7 +31,7 @@ class Report(NamedTuple):
     status: bool
 
     def __repr__(self) -> str:
-        return f'<Report, req={self.sent.req}, status={self.status}>'
+        return f'<Report, req={self.req}, status={self.status}>'
 
 
 @app.task(name='send_tokens', bind=True)
@@ -42,6 +42,17 @@ def send_tokens(self, address, value, request_id):
         tx_hash = default_wallet.send_zeew(address, value)
     except Exception:
         logging.error(f'Caught an error in send_tokens {traceback.print_exc()}')
+        tx_hash = -1
+
+    return Sent(request_id, tx_hash)
+
+
+@app.task(name='add_address_to_whitelist', bind=True)
+def add_wl(self, address, request_id):
+    try:
+        tx_hash = default_wallet.add_to_wl(address)
+    except Exception:
+        logging.error(f'Caught an error in add_wl {traceback.print_exc()}')
         tx_hash = -1
 
     return Sent(request_id, tx_hash)
