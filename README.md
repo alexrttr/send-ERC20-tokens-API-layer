@@ -52,6 +52,12 @@ In order to setup account the following steps are required:
 * copy your keystore file into ethereum/keystore folder
 * echo your password into ethereum/keystore/password
 * set "--unlock" key in docker-compose.yml to your account address (instead of index) if you have two or more addresses to test with. If you have only one address and your ethereum folder doesn't contain any files except for keystore, then default config should be able to figure out address on its own. If ethereum container reports "unable to unlock", set the address explicitly.
+* make sure your ethereum folder is writable by root, run chmod or chown to allow root user to create files in it, e.g. 
+```
+su -
+chown root:root ethereum
+cat ethereum/keystore password
+```
 
 Once the container is launched, waits for full sync with public ethereum network.
 

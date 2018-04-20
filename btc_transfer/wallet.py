@@ -1,50 +1,48 @@
 import json
 import logging
 import os
-import six
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
+DEFAULT_GAS_LIMIT = 200000
+DEFAULT_GAS_PRICE = 41
 DEFAULT_ETH_HOST = '192.168.0.45'
 DEFAULT_ETH_RPC_PORT = 8545
 DEFAULT_CONTRACT_ADDRESS = '0x6278ae7b2954ba53925EA940165214da30AFa261'
 
 
-class WalletMetaClass(type):
+class EthWallet(object):
     @property
-    def w3(cls):
-        if getattr(cls, '_WEB3', None) is None:
+    def w3(self):
+        if getattr(self, '_WEB3', None) is None:
             from web3 import Web3, HTTPProvider
 
             host = os.environ.get('ETH_HOST', DEFAULT_ETH_HOST)
             port = os.environ.get('ETH_RPC_PORT', DEFAULT_ETH_RPC_PORT)
             provider = HTTPProvider('http://%s:%s' % (host, port))
-            cls._WEB3 = Web3(provider)
+            self._WEB3 = Web3(provider)
             logging.info('geth node is connected!')
-        return cls._WEB3
+        return self._WEB3
 
-
-class EthWallet(six.with_metaclass(WalletMetaClass)):
-    def _get_contract(self):
-        with open('contract/abi.json', 'r') as abi_definition:
+    @property
+    def token_holder_contract(self):
+        if getattr(self, '_HOLDER', None) is not None:
+            return self._HOLDER
+        with open('contract/holder/abi.json', 'r') as abi_definition:
             abi = json.load(abi_definition)
 
         contract_addr = os.environ.get('CONTRACT_ADDR', DEFAULT_CONTRACT_ADDRESS)
-        return self.w3.eth.contract(address=contract_addr, abi=abi)
-
-    def _connect_eth_node(self):
-        self.w3 = EthWallet.w3
-        self.w3.eth.defaultAccount = self.w3.eth.accounts[0]
-        self.contract = self._get_contract()
+        self._HOLDER = self.w3.eth.contract(address=contract_addr, abi=abi)
+        return self._HOLDER
 
     def send_zeew(self, address: str, value: int) -> str:
-        if not hasattr(self, 'w3'):
-            self._connect_eth_node()
+        self.w3.eth.defaultAccount = self.w3.eth.accounts[0]
+        logger.info(f'Using account {self.w3.eth.defaultAccount}')
 
         transaction = {
-            'gas': 000,
-            # 'gasPrice': 41,
+            'gas': int(os.environ.get('GAS_LIMIT', DEFAULT_GAS_LIMIT)),
+            'gasPrice': int(os.environ.get('GAS_PRICE', DEFAULT_GAS_PRICE)),
         }
 
         logging.info('sending {} ZEEW to {}'.format(value, address))

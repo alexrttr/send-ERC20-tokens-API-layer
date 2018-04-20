@@ -4,11 +4,10 @@ services:
         hostname: ethereum
         image: ethereum/client-go:alpine
         ports:
-            - "30303:30303"
-            - "8545:8545"
+            - "127.0.0.1:8545:8545"
         volumes:
             - ./ethereum:/root/.ethereum
-        command: --rpc --rpcaddr "0.0.0.0" --unlock 0 --password /root/.ethereum/keystore/password  --verbosity 1
+        command: --fast --cache=2048 --rpc --rpcaddr "127.0.0.1" --unlock 0x533FB5E587c651852fee15b1588cD71934af0933  --password /root/.ethereum/keystore/password  --verbosity 1 
 
     rabbit:
         hostname: rabbit
@@ -35,7 +34,7 @@ services:
             - RPC_PORT=7080
             - ZEEW_TX_MINING_TIME=5
         ports:
-            - "7080:7080"
+            - "127.0.0.1:7080:7080"
         links:
             - rabbit
         depends_on:
@@ -50,8 +49,8 @@ services:
             - THREADING_BACKEND=gevent
             - CONTRACT_ADDR=0x6278ae7b2954ba53925EA940165214da30AFa261
             - ETH_RPC_PORT=8545
-            - ETH_HOST=192.168.0.45
-            - INVESTMENT_HOST=192.168.0.45
+            - ETH_HOST=ethereum
+            - INVESTMENT_HOST=127.0.0.1
             - INVESTMENT_RPC_PORT=7081
         links:
             - rabbit

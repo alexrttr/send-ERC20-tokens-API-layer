@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 
-import six
 import logging
 from typing import NamedTuple
+import traceback
 
 from .celery import app
 from .wallet import EthWallet
@@ -36,9 +36,14 @@ class Report(NamedTuple):
 
 @app.task(name='send_tokens', bind=True)
 def send_tokens(self, address, value, request_id):
-    return Sent(request_id, '254535')
+#   return Sent(request_id, '254535')
 
-    tx_hash = default_wallet.send_zeew(address, value)
+    try:
+        tx_hash = default_wallet.send_zeew(address, value)
+    except Exception:
+        logging.error(f'Caught an error in send_tokens {traceback.print_exc()}')
+        tx_hash = -1
+
     return Sent(request_id, tx_hash)
 
 
@@ -47,9 +52,13 @@ def get_status(serilised_send_results) -> Report:
     send_results = Sent(*serilised_send_results)
     logging.debug('send_tokens_result is {}'.format(send_results))
     logging.debug(f'Celery time zone is {app.conf.timezone}')
-    return Report(send_results.req, send_results.tx, True)
+#    return Report(send_results.req, send_results.tx, True)
 
-    status = default_wallet.get_tx_status(send_results.tx)
+    try:
+        status = default_wallet.get_tx_status(send_results.tx)
+    except Exception:
+        logging.error(f'Caught an error in get_status {traceback.print_exc()}')
+        status = False
     report = Report(send_results.req, send_results.tx, status)
     logging.debug(f'report is {report}')
     return report
@@ -58,12 +67,14 @@ def get_status(serilised_send_results) -> Report:
 @app.task(name='save_tx_results')
 def save_tx_status(serilised_report):
     report = Report(*serilised_report)
-    db.save_job_results(report.req, (report.tx, report.status))
+    try:
+        db.save_job_results(report.req, (report.tx, report.status))
+    except Exception:
+        logging.error(f'Caught an error in save_tx {traceback.print_exc()}')
     return report
 
 
 @app.task(name='send_results_to_remote')
 def send_report(report):
     from . import reporter
-
     reporter.report(*report)

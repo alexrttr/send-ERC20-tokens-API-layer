@@ -1,14 +1,18 @@
 version: '3.3'
 services:
+    geth:
+        hostname: geth
+        image: ethereum/client-go:alpine
+        command: --light
+
     ethereum:
         hostname: ethereum
-        image: ethereum/client-go:alpine
-        ports:
-            - "30303:30303"
-            - "8545:8545"
+        image: parity/parity:latest
+        container_name: parity_container
         volumes:
-            - ./ethereum:/root/.ethereum
-        command: --rpc --rpcaddr "0.0.0.0" --unlock 0x533FB5E587c651852fee15b1588cD71934af0933  --password /root/.ethereum/keystore/password  --verbosity 1
+            - ./ethereum:/root/.local/share/io.parity.ethereum
+        working_dir: /parity/
+        command:  --jsonrpc-interface '0.0.0.0'  --unlock 0x533FB5E587c651852fee15b1588cD71934af0933  --password /root/.local/share/io.parity.ethereum/keys/ethereum/password
 
     rabbit:
         hostname: rabbit
@@ -16,8 +20,6 @@ services:
         environment:
             - RABBITMQ_DEFAULT_USER=admin
             - RABBITMQ_DEFAULT_PASS=mypass
-        ports:
-            - "5673:5672"
 
     database:
         hostname: database
@@ -40,7 +42,7 @@ services:
             - ZEEW_TX_MINING_TIME=1
             - TIME_ZONE=Europe/Moscow
         ports:
-            - "7080:7080"
+            - "127.0.0.1:7080:7080"
         links:
             - rabbit
         depends_on:
@@ -57,9 +59,11 @@ services:
             - THREADING_BACKEND=gevent
             - CONTRACT_ADDR=0x6278ae7b2954ba53925EA940165214da30AFa261
             - ETH_RPC_PORT=8545
-            - ETH_HOST=192.168.0.45
-            - INVESTMENT_HOST=192.168.0.45
+            - ETH_HOST=ethereum
+            - INVESTMENT_HOST=127.0.0.1
             - INVESTMENT_RPC_PORT=7081
+            - GAS_LIMIT=200000
+            - GAS_PRICE=41
         links:
             - rabbit
             - database
@@ -68,17 +72,17 @@ services:
             - database
             - ethereum
 
-    flower:
-        hostname: flower
-        image: totem/celery-flower-docker
-        environment:
-            - AMQP_HOST=rabbit
-            - AMQP_USERNAME=admin
-            - AMQP_PASSWORD=mypass
-        ports:
-             - "5555:5555"
-        entrypoint: flower
-        links:
-            - rabbit
-        depends_on:
-            - worker
+#   flower:
+#       hostname: flower
+#       image: totem/celery-flower-docker
+#       environment:
+#           - AMQP_HOST=rabbit
+#           - AMQP_USERNAME=admin
+#           - AMQP_PASSWORD=mypass
+#       ports:
+#           - "127.0.0.1:5555:5555"
+#       entrypoint: flower
+#       links:
+#           - rabbit
+#       depends_on:
+#           - worker
