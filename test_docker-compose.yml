@@ -12,7 +12,7 @@ services:
         volumes:
             - ./ethereum:/root/.local/share/io.parity.ethereum
         working_dir: /parity/
-        command: --chain=ropsten --jsonrpc-interface '0.0.0.0' --unlock 0x21e66e44BCCD87c3f3a598bc1f14e2353D0ace72  --password /root/.local/share/io.parity.ethereum/keys/ethereum/password
+        command: --chain=ropsten --jsonrpc-interface '0.0.0.0'  --unlock 0x21e66e44BCCD87c3f3a598bc1f14e2353D0ace72  --password /root/.local/share/io.parity.ethereum/keys/ethereum/password
 
     rabbit:
         hostname: rabbit
@@ -20,6 +20,7 @@ services:
         environment:
             - RABBITMQ_DEFAULT_USER=admin
             - RABBITMQ_DEFAULT_PASS=mypass
+        restart: always
 
     database:
         hostname: database
@@ -39,12 +40,10 @@ services:
         environment:
             - ETH_RPC_PORT=8545
             - RPC_PORT=7080
-            - ZEEW_TX_MINING_TIME=1
+            - ZEEW_TX_MINING_TIME=2
             - TIME_ZONE=Europe/Moscow
         ports:
             - "127.0.0.1:7080:7080"
-        links:
-            - rabbit
         depends_on:
             - rabbit
             - ethereum
@@ -61,30 +60,26 @@ services:
             - CROWDSALE_CONTRACT_ADDR=0xF4aa8b2a7b1c66CacC185AA4499f0B27D82633D3
             - ETH_RPC_PORT=8545
             - ETH_HOST=ethereum
-              # don't set 127.0.0.1 here
-            - INVESTMENT_HOST=192.168.0.45
+              # don't set 127.0.0.1 here, use docker's bridge iface
+            - INVESTMENT_HOST=172.18.0.1
             - INVESTMENT_RPC_PORT=7081
             - GAS_LIMIT=200000
             - GAS_PRICE=41
-        links:
-            - rabbit
-            - database
         depends_on:
             - rabbit
             - database
             - ethereum
 
-#   flower:
-#       hostname: flower
-#       image: totem/celery-flower-docker
-#       environment:
-#           - AMQP_HOST=rabbit
-#           - AMQP_USERNAME=admin
-#           - AMQP_PASSWORD=mypass
-#       ports:
-#           - "127.0.0.1:5555:5555"
-#       entrypoint: flower
-#       links:
-#           - rabbit
-#       depends_on:
-#           - worker
+    flower:
+        hostname: flower
+        image: totem/celery-flower-docker
+        environment:
+            - AMQP_HOST=rabbit
+            - AMQP_USERNAME=admin
+            - AMQP_PASSWORD=mypass
+        ports:
+            - "127.0.0.1:5555:5555"
+        entrypoint: flower
+        depends_on:
+            - worker
+            - rabbit
