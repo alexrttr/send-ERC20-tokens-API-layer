@@ -49,7 +49,7 @@ class SendTokensServer(jsonrpc.JSONRPC):
         Adds address to whitelist in crowdsale contract
         """
         logging.info(f'Received whitelist request {requestId}')
-        return self.send_tokens(address, int(value), requestId)
+        return self.add_whitelist(address, requestId)
 
     def send_tokens(self, address, value, req_id):
         if not self._address_valid(address):

@@ -36,8 +36,6 @@ class Report(NamedTuple):
 
 @app.task(name='send_tokens', bind=True)
 def send_tokens(self, address, value, request_id):
-#   return Sent(request_id, '254535')
-
     try:
         tx_hash = default_wallet.send_zeew(address, value)
     except Exception:
@@ -63,10 +61,12 @@ def get_status(serilised_send_results) -> Report:
     send_results = Sent(*serilised_send_results)
     logging.debug('send_tokens_result is {}'.format(send_results))
     logging.debug(f'Celery time zone is {app.conf.timezone}')
-#    return Report(send_results.req, send_results.tx, True)
 
     try:
-        status = default_wallet.get_tx_status(send_results.tx)
+        if send_results.tx != -1:
+            status = default_wallet.get_tx_status(send_results.tx)
+        else:
+            status = False
     except Exception:
         logging.error(f'Caught an error in get_status {traceback.print_exc()}')
         status = False
