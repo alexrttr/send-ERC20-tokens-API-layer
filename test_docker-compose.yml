@@ -12,7 +12,7 @@ services:
         volumes:
             - ./ethereum:/root/.local/share/io.parity.ethereum
         working_dir: /parity/
-        command: --chain=ropsten --jsonrpc-interface '0.0.0.0'  --unlock 0x21e66e44BCCD87c3f3a598bc1f14e2353D0ace72  --password /root/.local/share/io.parity.ethereum/keys/test/password
+        command: --chain=ropsten --no-persistent-txqueue --jsonrpc-interface '0.0.0.0'  --unlock 0x21e66e44BCCD87c3f3a598bc1f14e2353D0ace72  --password /root/.local/share/io.parity.ethereum/keys/test/password
 
     rabbit:
         hostname: rabbit
@@ -62,7 +62,7 @@ services:
             - INVESTMENT_HOST=172.18.0.1
             - INVESTMENT_RPC_PORT=7081
             - GAS_LIMIT=200000
-            - GAS_PRICE=41
+            - GAS_PRICE=60000000000
         depends_on:
             - rabbit
             - database

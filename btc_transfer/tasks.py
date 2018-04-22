@@ -59,7 +59,7 @@ def add_wl(self, address, request_id):
 @app.task(name='get_tx_status')
 def get_status(serilised_send_results) -> Report:
     send_results = Sent(*serilised_send_results)
-    logging.debug('send_tokens_result is {}'.format(send_results))
+    logging.debug(f'send_tokens/add_wl_result is {send_results}')
     logging.debug(f'Celery time zone is {app.conf.timezone}')
 
     try:

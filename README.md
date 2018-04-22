@@ -47,7 +47,7 @@ docker-compose rebuild
 * INVESTMENT_RPC_PORT is a port of json-rpc server on the investment platform receiving reports
 - TIME_ZONE is a time zone of celery schedule, it should be set to server's time zone, celery delays tasks with it
 - GAS_LIMIT is a max gas a particular transaction can use
-- GAS_PRICE is a price of gas in gwei
+- GAS_PRICE is a price of gas in wei
 
 
 ## How to setup a geth container

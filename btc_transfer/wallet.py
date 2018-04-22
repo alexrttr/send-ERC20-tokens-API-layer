@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 DEFAULT_GAS_LIMIT = 200000
-DEFAULT_GAS_PRICE = 41
+DEFAULT_GAS_PRICE = 41000000000
 DEFAULT_ETH_HOST = 'ethereum'
 DEFAULT_ETH_RPC_PORT = 8545
 
