@@ -53,13 +53,18 @@ class EthWallet(object):
         self._CWS = self.w3.eth.contract(address=contract_addr, abi=abi)
         return self._CWS
 
-    def send_zeew(self, address: str, value: int) -> str:
+    def normalize(self, address) -> str:
+        return self.w3.toChecksumAddress(address)
+
+    def send_zeew(self, addr: str, value: int) -> str:
+        address = self.normalize(addr)
         logging.info(f'sending {value} ZEEW to {address}')
         tx = self.token_holder_contract.functions.transfer(address, value).transact(transaction).hex()
         logging.info('sent tx {}'.format(tx))
         return tx
 
-    def add_to_wl(self, address: str) -> str:
+    def add_to_wl(self, addr: str) -> str:
+        address = self.normalize(addr)
         logging.info(f'adding {address} to whitelist')
         tx = self.crowdsale_contract.functions.addAddressToWhitelist(address).transact(transaction).hex()
         logging.info('sent tx {}'.format(tx))
