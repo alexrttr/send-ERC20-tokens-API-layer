@@ -55,7 +55,7 @@ docker-compose rebuild
 In order to setup account the following steps are required:
 * copy your keystore file into ethereum/keys/ethereum folder (ethereum/keys/test for test)
 * echo your password into ethereum/keys/ethereum/password
-* set "--unlock" key in docker-compose.yml to your account address (instead of index) if you have two or more addresses to test with. If you have only one address and your ethereum folder doesn't contain any files except for keystore, then default config should be able to figure out address on its own. If ethereum container reports "unable to unlock", set the address explicitly.
+* set `--unlock` key in docker-compose.yml to your account address (instead of index) if you have two or more addresses to test with. If you have only one address and your ethereum folder doesn't contain any files except for keystore, then default config should be able to figure out address on its own. If ethereum container reports "unable to unlock", set the address explicitly.
 * make sure your ethereum folder is writable by root, run chmod or chown to allow root user to create files in it if needed, e.g. 
 ```
 su -
@@ -69,10 +69,10 @@ Once the container is launched, wait about 30..40 hours for full sync with publi
 
 ## How to communicate to the script
 
-The script will open port 7080 on loopback interface. This port receives json-rpc requests. An example of such a request can be found in tests/send_tokens.sh script.
+The script will open port 7080 on loopback interface. This port receives json-rpc requests. An example of such a request can be found in `tests/send_tokens.sh script`.
 
 This script expects to be able connect to docker's bridge ip address and port 7081 to report back results of transaction.
-A dummy listener can be found in tests/reports_listener.sh
+A dummy listener can be found in `tests/reports_listener.sh`
 
 ## How to change smart contracts
 

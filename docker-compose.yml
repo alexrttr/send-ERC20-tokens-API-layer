@@ -46,6 +46,7 @@ services:
             dockerfile: worker_dockerfile
         environment:
             - THREADING_BACKEND=gevent
+            - TIME_ZONE=Europe/Moscow
             - HOLDER_CONTRACT_ADDR=0x6278ae7b2954ba53925EA940165214da30AFa261
             - CROWDSALE_CONTRACT_ADDR=0xF4aa8b2a7b1c66CacC185AA4499f0B27D82633D3
             - ETH_RPC_PORT=8545
@@ -53,7 +54,7 @@ services:
             - INVESTMENT_HOST=172.18.0.1
             - INVESTMENT_RPC_PORT=7081
             - GAS_LIMIT=200000
-            - GAS_PRICE=41
+            - GAS_PRICE=60000000000
         depends_on:
             - rabbit
             - database
