@@ -17,6 +17,7 @@ logger.addHandler(logging.NullHandler())
 DEF_ZEEW_TX_MINING_TIME = 10
 mining_time = os.environ.get('ZEEW_TX_MINING_TIME', DEF_ZEEW_TX_MINING_TIME)
 
+
 def handle_pdb(sig, frame):
     import pdb
     pdb.Pdb().set_trace(frame)
