@@ -38,7 +38,8 @@ class EthWallet(object):
         with open('contract/holder/abi.json', 'r') as abi_definition:
             abi = json.load(abi_definition)
 
-        contract_addr = os.environ.get('HOLDER_CONTRACT_ADDR', None)
+        contract_address = os.environ.get('HOLDER_CONTRACT_ADDR', None)
+        contract_addr = self.normalize(contract_address)
         self._HOLDER = self.w3.eth.contract(address=contract_addr, abi=abi)
         return self._HOLDER
 
@@ -49,7 +50,8 @@ class EthWallet(object):
         with open('contract/crowdsale/abi.json', 'r') as abi_definition:
             abi = json.load(abi_definition)
 
-        contract_addr = os.environ.get('CROWDSALE_CONTRACT_ADDR', None)
+        contract_address = os.environ.get('CROWDSALE_CONTRACT_ADDR', None)
+        contract_addr = self.normalize(contract_address)
         self._CWS = self.w3.eth.contract(address=contract_addr, abi=abi)
         return self._CWS
 

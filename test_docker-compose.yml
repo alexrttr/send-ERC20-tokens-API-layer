@@ -54,8 +54,8 @@ services:
             - .:/app
         environment:
             - THREADING_BACKEND=gevent
-            - HOLDER_CONTRACT_ADDR=0x1e0c3C35C784a49f5fa6716f8E2EFa07dd18Dc5c
-            - CROWDSALE_CONTRACT_ADDR=0x306A41aEba3621AaF452698e4b9B4A9c42439878
+            - HOLDER_CONTRACT_ADDR=0xf4350c378c8e5bf11c6d57c46165a56dab506bba
+            - CROWDSALE_CONTRACT_ADDR=0xec7e6984a660237622547ab3b11647b16291bcb7
             - ETH_RPC_PORT=8545
             - ETH_HOST=ethereum
               # don't set 127.0.0.1 here, use docker's bridge iface
