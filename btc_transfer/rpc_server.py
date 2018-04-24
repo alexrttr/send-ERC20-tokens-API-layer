@@ -32,17 +32,17 @@ class SendTokensServer(jsonrpc.JSONRPC):
 
     def _value_valid(self, value):
         try:
-            int(value)
+            float(value)
         except ValueError:
             return False
-        return int(value) > 0
+        return float(value) > 0
 
     def jsonrpc_sendTokens(self, address, value, requestId):
         """
         Sends value number of ZEEW to address
         """
         logging.info(f'Received send tokens request {requestId}')
-        return self.send_tokens(address, int(value), requestId)
+        return self.send_tokens(address, value, requestId)
 
     def jsonrpc_addAddressToWhitelist(self, address, requestId):
         """

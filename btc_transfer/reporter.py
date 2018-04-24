@@ -14,4 +14,4 @@ client = HTTPClient(f'http://{inv_host}:{inv_port}')
 def report(req, tx, status):
     logging.debug(f'sending report for {req}')
     request = Request(f'reportStatus', req, status, tx)
-    client.send(request)
+    client.notify(request)

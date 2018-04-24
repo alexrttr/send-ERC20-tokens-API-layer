@@ -1,4 +1,6 @@
+from decimal import Decimal
 import json
+import math
 import logging
 import os
 
@@ -9,6 +11,7 @@ DEFAULT_GAS_LIMIT = 200000
 DEFAULT_GAS_PRICE = 41000000000
 DEFAULT_ETH_HOST = 'ethereum'
 DEFAULT_ETH_RPC_PORT = 8545
+DECIMAL_POINTS_MUL = int(math.pow(10, 18))
 
 transaction = {
     'gas': int(os.environ.get('GAS_LIMIT', DEFAULT_GAS_LIMIT)),
@@ -58,10 +61,12 @@ class EthWallet(object):
     def normalize(self, address) -> str:
         return self.w3.toChecksumAddress(address)
 
-    def send_zeew(self, addr: str, value: int) -> str:
+    def send_zeew(self, addr: str, value) -> str:
         address = self.normalize(addr)
         logging.info(f'sending {value} ZEEW to {address}')
-        tx = self.token_holder_contract.functions.transfer(address, value).transact(transaction).hex()
+        logging.debug(f'value type is {type(value)}')
+        int_value = int(Decimal(value) * DECIMAL_POINTS_MUL)
+        tx = self.token_holder_contract.functions.transfer(address, int_value).transact(transaction).hex()
         logging.info('sent tx {}'.format(tx))
         return tx
 

@@ -36,6 +36,7 @@ class Report(NamedTuple):
 
 @app.task(name='send_tokens', bind=True)
 def send_tokens(self, address, value, request_id):
+    logging.debug(f'tasks.py: value type is {type(value)}')
     try:
         tx_hash = default_wallet.send_zeew(address, value)
     except Exception:
